@@ -39,6 +39,8 @@ class ItemDetailController: UIViewController {
         passwordLabel = UILabel()
         passwordLabel.text = item.password
         self.view.addSubview(passwordLabel)
+        
+        self.view.backgroundColor = UIColor.white
     }
     
     override func viewDidLayoutSubviews() {
