@@ -12,10 +12,11 @@ import UIKit
 class MainViewController: UIViewController {
     
     private var tableView: UITableView!
-    fileprivate var allPasswordItems: [PasswordItem]
+    fileprivate var pwItemBundle: PasswordItemBundle
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        allPasswordItems = FMDBManager.shared.extractAllItems()
+        pwItemBundle = PasswordItemBundle.init(allPasswordItems: TestCase.shared.randomItems())
+//        allPasswordItems = PasswordItemBundle.init(allPasswordItems: FMDBManager.shared.extractAllItems())
         super.init(nibName: nil, bundle: nil)
 
     }
@@ -70,8 +71,7 @@ class MainViewController: UIViewController {
                                             accountName: tfAc.text!,
                                             password: tfPw.text!,
                                             id: nil)
-            FMDBManager.shared.add(passwordItems: [newItem])
-            self.allPasswordItems.insert(newItem, at: 0)
+            self.pwItemBundle.insert(newItem)
             self.tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
         }
         
@@ -87,18 +87,44 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let item =  allPasswordItems[indexPath.row]
+        
+        let item =  pwItemBundle.itemsAt(bracketIndex: indexPath.section)[indexPath.row]
         self.navigationController?.pushViewController(ItemDetailController.init(withItem: item), animated: true)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allPasswordItems.count
+        return pwItemBundle.itemsAt(bracketIndex: section).count
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return pwItemBundle.numberOfSections
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PasswordItemCell.cellID(), for: indexPath) as! PasswordItemCell
-        let item =  allPasswordItems[indexPath.row]
+        let item =  pwItemBundle.itemsAt(bracketIndex: indexPath.section)[indexPath.row]
         cell.textLabel?.text = item.hostName
         return cell
+    }
+    
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        return pwItemBundle.allIndexTitles
+    }
+    
+    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+        return index
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView()
+        let label = UILabel()
+        label.text = pwItemBundle.indexTitle(atIndex: section)
+        label.sizeToFit()
+        view.addSubview(label)
+        return view
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 12
     }
 }

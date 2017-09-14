@@ -18,7 +18,7 @@ class FMDBManager {
     private init() {
         let docPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let dbName = "pw.db"
-        dbQueue = FMDatabaseQueue.init(path: docPath + dbName)
+        dbQueue = FMDatabaseQueue.init(path: docPath + "/" + dbName)
         
         dbQueue.inDatabase { (db) in
             do {
