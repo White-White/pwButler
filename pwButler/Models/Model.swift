@@ -8,6 +8,14 @@
 
 import Foundation
 
+/*
+ ASCII
+ A = 0x41
+ Z = 0x5a
+ a = 0x61
+ z = 0x7a
+ */
+
 struct PasswordItem {
     var id: Int?
     let hostName: String
@@ -51,14 +59,14 @@ struct PasswordItemBundle {
         }
         
         mutating func insert(_ item: PasswordItem) -> Int {
-            //TODO: 
-            self.items.append(item)
+            //TODO: 目前在同一字母下，直接插入到数组头，所以顺序是乱的
+            self.items.insert(item, at: 0)
             return 0
         }
     }
     
     //Private
-    private var allBrackets: [Bracket]
+    private var allBrackets: [Bracket] = []
     
     //Public
     var numberOfSections: Int { return allBrackets.count }
@@ -87,21 +95,39 @@ struct PasswordItemBundle {
         tmpBrackets.append(bracketLast)
         
         for pwItem in allItems {
-            if let indexCChar = pwItem.indexTitleForHostName()?.cString(using: .utf8)?.first {
-                let index = UInt8(bitPattern: indexCChar)
-                guard index <= 90 && index >= 65 else { fatalError() }
-                _ = tmpBrackets[Int(index) - 65].insert(pwItem)
-            } else {
-                _ = tmpBrackets[26].insert(pwItem)
-            }
+            let insertIndex = indexToInsertFor(pwItem.indexTitleForHostName())
+            _ = tmpBrackets[insertIndex].insert(pwItem)
         }
 
-        self.allBrackets = tmpBrackets.filter { !$0.items.isEmpty }
+        self.allBrackets = tmpBrackets
+    }
+    
+    
+    /// 根据字符串，返回该tile属于哪一个bracket
+    private func indexToInsertFor(_ title: String?) -> Int {
+        if let cchar = title?.cString(using: .utf8)?.first {
+            let index = UInt8(bitPattern: cchar)
+            if index <= 0x5a && index >= 0x41 {
+                return Int(index) - 0x41
+            } else if index <= 0x7a && index >= 0x61 {
+                return Int(index) - 0x61
+            } else {
+                fatalError()
+            }
+        } else {
+            return 26
+        }
     }
     
     //增
-    func insert(_ insert: PasswordItem) {
-    
+    mutating func insert(_ item: PasswordItem) -> IndexPath {
+        //增加到数据库
+        FMDBManager.shared.add(passwordItems: [item])
+        
+        //增加到UI
+        let bracketSection = indexToInsertFor(item.indexTitleForHostName())
+        let bracketRow = allBrackets[bracketSection].insert(item)
+        return IndexPath(row: bracketRow, section: bracketSection)
     }
     
     //删

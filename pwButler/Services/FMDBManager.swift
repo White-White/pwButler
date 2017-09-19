@@ -99,6 +99,7 @@ class FMDBManager {
                                                  id: Int(rs.int(forColumnIndex: 0)))
                     result.append(item)
                 }
+                rs.close()
             } catch {
                 fatalError()
             }

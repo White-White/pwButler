@@ -15,8 +15,8 @@ class MainViewController: UIViewController {
     fileprivate var pwItemBundle: PasswordItemBundle
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        pwItemBundle = PasswordItemBundle.init(allPasswordItems: TestCase.shared.randomItems())
-//        allPasswordItems = PasswordItemBundle.init(allPasswordItems: FMDBManager.shared.extractAllItems())
+//        pwItemBundle = PasswordItemBundle.init(allPasswordItems: TestCase.shared.randomItems())
+        pwItemBundle = PasswordItemBundle.init(allPasswordItems: FMDBManager.shared.extractAllItems())
         super.init(nibName: nil, bundle: nil)
 
     }
@@ -44,7 +44,7 @@ class MainViewController: UIViewController {
         tableView.frame = self.view.bounds
     }
     
-    func addItem() {
+    @objc func addItem() {
         let alertController = UIAlertController.init(title: "Add Item", message: nil, preferredStyle: .alert)
         
         var tfHost: UITextField!
@@ -71,8 +71,8 @@ class MainViewController: UIViewController {
                                             accountName: tfAc.text!,
                                             password: tfPw.text!,
                                             id: nil)
-            self.pwItemBundle.insert(newItem)
-            self.tableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
+            let idxPath = self.pwItemBundle.insert(newItem)
+            self.tableView.insertRows(at: [idxPath], with: .automatic)
         }
         
         let cancelAction = UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil)
@@ -120,6 +120,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         let label = UILabel()
         label.text = pwItemBundle.indexTitle(atIndex: section)
         label.sizeToFit()
+        label.textColor = UIColor.red
         view.addSubview(label)
         return view
     }
