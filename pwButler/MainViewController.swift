@@ -83,36 +83,13 @@ class MainViewController: UIViewController {
     }
 }
 
-extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+extension MainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let item =  pwItemBundle.itemsAt(bracketIndex: indexPath.section)[indexPath.row]
         self.navigationController?.pushViewController(ItemDetailController.init(withItem: item), animated: true)
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return pwItemBundle.itemsAt(bracketIndex: section).count
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return pwItemBundle.numberOfSections
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: PasswordItemCell.cellID(), for: indexPath) as! PasswordItemCell
-        let item =  pwItemBundle.itemsAt(bracketIndex: indexPath.section)[indexPath.row]
-        cell.textLabel?.text = item.hostName
-        return cell
-    }
-    
-    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        return pwItemBundle.allIndexTitles
-    }
-    
-    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-        return index
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -126,6 +103,46 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 12
+        return 20
     }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let deleteAction = UITableViewRowAction.init(style: .destructive, title: "Delete") { (action, indexPath) in
+            
+        }
+        
+        let editAction = UITableViewRowAction.init(style: .default, title: "Edit") { (action, indexPath) in
+            
+        }
+        editAction.backgroundColor = UIColor.lightGray //TODO: 颜色不好看
+        
+        return [deleteAction, editAction]
+    }
+}
+
+extension MainViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return pwItemBundle.itemsAt(bracketIndex: section).count
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return pwItemBundle.numberOfSections
+    }
+    
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        return pwItemBundle.allIndexTitles
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: PasswordItemCell.cellID(), for: indexPath) as! PasswordItemCell
+        let item =  pwItemBundle.itemsAt(bracketIndex: indexPath.section)[indexPath.row]
+        cell.textLabel?.text = item.hostName
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+        return index
+    }
+    
 }
